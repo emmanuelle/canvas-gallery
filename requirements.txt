@@ -8,4 +8,4 @@ gunicorn
 scikit-image
 pandas
 numpy
-PIL
+Pillow
