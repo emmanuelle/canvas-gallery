@@ -53,16 +53,26 @@ layout = html.Div([
             id='table-line',
             columns=columns,
             editable=True,
-            )
+            ),
+        html.Div(id='my-div')
     ], className="four columns"),
     ])
 
 
 def callbacks(app):
 
+    @app.callback(Output('my-div', 'children'),
+                  [Input('table-line', 'data')])
+    def write_div(data):
+        print('entering write div')
+        return "completed"
+
+
     @app.callback(Output('table-line', 'data'),
                   [Input('canvas-line', 'json_data')])
-    def show_string(string):
+    def show_table(string):
+        print('entering show_table callback')
         props = parse_jsonstring_line(string)
         df = pd.DataFrame(props[:, :3], columns=list_columns)
+        print('return show_table callback')
         return df.to_dict("records")
