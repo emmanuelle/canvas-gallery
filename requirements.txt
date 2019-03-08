@@ -1,0 +1,11 @@
+dash
+dash-core-components
+dash-html-components
+dash-canvas>=0.0.7
+dash-table
+plotly
+gunicorn
+scikit-image
+pandas
+numpy
+PIL
