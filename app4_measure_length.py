@@ -20,11 +20,10 @@ def title():
 def description():
     return "Draw lines on objects to measure their lengths."
 
-
-filename = 'https://upload.wikimedia.org/wikipedia/commons/a/a4/MRI_T2_Brain_axial_image.jpg'
-img = io.imread(filename)[..., 0].T
+filename = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/X-ray_of_normal_elbow_by_lateral_projection.jpg/756px-X-ray_of_normal_elbow_by_lateral_projection.jpg'
+img = io.imread(filename)
 height, width = img.shape
-canvas_width = 600
+canvas_width = 500
 canvas_height = round(height * canvas_width / width)
 scale = canvas_width / width
 
@@ -40,7 +39,8 @@ layout = html.Div([
             scale=scale,
             lineWidth=2,
             lineColor='red',
-            tool='line',
+            tool="line",
+            hide_buttons=['pencil'],
             image_content=array_to_data_url(img),
             goButtonTitle='Measure',
             ),
@@ -54,25 +54,16 @@ layout = html.Div([
             columns=columns,
             editable=True,
             ),
-        html.Div(id='my-div')
     ], className="four columns"),
     ])
 
 
 def callbacks(app):
 
-    @app.callback(Output('my-div', 'children'),
-                  [Input('table-line', 'data')])
-    def write_div(data):
-        print('entering write div')
-        return "completed"
-
 
     @app.callback(Output('table-line', 'data'),
                   [Input('canvas-line', 'json_data')])
     def show_table(string):
-        print('entering show_table callback')
         props = parse_jsonstring_line(string)
         df = pd.DataFrame(props[:, :3], columns=list_columns)
-        print('return show_table callback')
         return df.to_dict("records")

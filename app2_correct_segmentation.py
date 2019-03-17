@@ -6,6 +6,7 @@ from PIL import Image
 
 import dash_canvas
 import dash
+from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
@@ -107,13 +108,10 @@ def callbacks(app):
                 State('cache', 'data'),
                 State('mode', 'value')])
     def update_segmentation(toggle, string, s, h, w, children, mode):
-        print("updating")
         if len(children) == 0:
             labs = labels
         else:
             labs = np.asarray(children)
-        with open('data.json', 'w') as fp:
-            json.dump(string, fp)
         mask = parse_jsonstring(string, shape=(height, width))
         new_labels = modify_segmentation(labs, mask, img=img, mode=mode)
         return new_labels
@@ -122,10 +120,13 @@ def callbacks(app):
     @app.callback(Output('canvas_', 'image_content'),
                 [Input('cache', 'data')])
     def update_figure(labs):
-        new_labels = np.array(labs)
-        overlay = segmentation.mark_boundaries(img, new_labels)
-        overlay = img_as_ubyte(overlay)
-        return array_to_data_url(overlay)
+        if labs:
+            new_labels = np.array(labs)
+            overlay = segmentation.mark_boundaries(img, new_labels)
+            overlay = img_as_ubyte(overlay)
+            return array_to_data_url(overlay)
+        else:
+            raise PreventUpdate
 
 
     @app.callback(Output('download-link', 'download'),
@@ -141,10 +142,13 @@ def callbacks(app):
                 [Input('cache', 'data')],
                 [State('save-mode', 'value')])
     def save_segmentation(labs, save_mode):
-        new_labels = np.array(labs)
-        np.save('labels.npy', new_labels)
-        if save_mode == 'png':
-            color_labels = color.label2rgb(new_labels)
-            uri = array_to_data_url(new_labels, dtype=np.uint8)
-            return uri
+        if labs:
+            new_labels = np.array(labs)
+            np.save('labels.npy', new_labels)
+            if save_mode == 'png':
+                color_labels = color.label2rgb(new_labels)
+                uri = array_to_data_url(new_labels, dtype=np.uint8)
+                return uri
+        else:
+            raise PreventUpdate
 

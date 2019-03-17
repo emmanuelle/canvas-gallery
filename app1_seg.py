@@ -74,7 +74,7 @@ layout = html.Div([
                      value='segmentation-help-tab',
                      children=[
                         html.Img(id='segmentation-help',
-                                 src='./assets/segmentation.gif',
+                                 src='../assets/segmentation.gif',
                                  width='100%'),
                      ]
                 )
@@ -175,7 +175,7 @@ def callbacks(app):
     @app.callback(Output('segmentation-tabs', 'value'),
                   [Input('canvas', 'json_data')])
     def change_focus(string):
-        if len(string) > 0:
+        if string:
             return 'segmentation-result-tab'
         return 'segmentation-canvas-tab'
 

@@ -11,13 +11,15 @@ import app3_background_removal as app3
 import app4_measure_length as app4
 import app5_stitching as app5
 
+DASH_APP_NAME = 'canvas-gallery'
+
 app = dash.Dash(__name__)
 server = app.server
 app.config.suppress_callback_exceptions = True
 
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id='location', refresh=False),
     html.Div(id='page-content')
 ])
 
@@ -73,16 +75,12 @@ def demo_app_img_src(name):
                   open('./assets/dashbio_logo.png', 'rb').read()).decode())
 
 
-
-@app.callback(Output('page-content', 'children'),
-              [Input('url', 'pathname')])
-def display_page(pathname):
-    if pathname is not None and len(pathname) > 1 and pathname[1:] in apps.keys():
-        app_name = pathname[1:]
-        return html.Div(id="waitfor",
-                          children=apps[app_name].layout,
-                        )
-    else:
+@app.callback(Output("page-content", "children"),
+             [Input("location", "pathname")])
+def display_app(pathname):
+    if pathname == '/{}'.format(DASH_APP_NAME) \
+       or pathname == '/{}/'.format(DASH_APP_NAME) \
+       or pathname == '/' or pathname is None:
         return html.Div(
             id='gallery-apps',
             children=[
@@ -91,29 +89,48 @@ def display_page(pathname):
                         children=[
                             html.Img(className='gallery-app-img',
                                      src=demo_app_img_src(name)),
-                            html.Div(className='gallery-app-info',
-                                children=[
-                                    html.Div(className='gallery-app-name',
-                                        children=[
-                                            demo_app_name(name)
-                                    ]),
-                                    html.Div(className='gallery-app-desc',
-                                        children=[demo_app_desc(name)
-                                    ]),
-
+                            html.Div(className='gallery-app-info', children=[
+                                html.Div(className='gallery-app-name', children=[
+                                    demo_app_name(name)
+                                ]),
+                                html.Div(className='gallery-app-desc', children=[
+                                    demo_app_desc(name)
+                                ])
                             ])
                         ],
                         id=demo_app_link_id(name),
-                        href="/{}".format(
+                        href="/{}/{}".format(
+                            DASH_APP_NAME,
                             name.replace("app_", "").replace("_", "-")
                         )
                     )
                 ]) for name in apps
             ])
 
+    app_name = \
+        pathname.replace(
+            '/{}/'.format(DASH_APP_NAME), '/').replace(
+                "/", "").replace("-", "_")
+    if app_name in apps:
+        return html.Div(id="waitfor",
+                        children=apps[app_name].layout,
+                        )
+    else:
+        return """
+            App not found.
+            You supplied "{}" and these are the apps that exist:
+            {}
+        """.format(
+            app_name, list(apps.keys())
+        )
+
 
 
 server = app.server
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

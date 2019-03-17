@@ -5,6 +5,7 @@ from PIL import Image
 
 import dash_canvas
 import dash
+from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
@@ -20,8 +21,9 @@ from dash_canvas.components import image_upload_zone
 
 # Image to segment and shape parameters
 filename = './assets/dress.jpg'
-img = io.imread(filename)
-height, width, _ = img.shape
+filename_app = '../assets/dress.jpg'
+img_app3 = io.imread(filename)
+height, width, _ = img_app3.shape
 canvas_width = 500
 canvas_height = round(height * canvas_width / width)
 scale = canvas_width / width
@@ -46,7 +48,7 @@ layout = html.Div([
                 width=canvas_width,
                 height=canvas_height,
                 scale=scale,
-                filename=filename,
+                filename=filename_app,
                 lineWidth=4,
                 goButtonTitle='Remove background',
                 hide_buttons=['line', 'zoom', 'pan'],
@@ -64,7 +66,7 @@ layout = html.Div([
         html.Div([
             html.H3(children='Image without background'),
             html.Img(id='segmentation-bg',
-                     src=array_to_data_url(np.zeros_like(img)),
+                     src=array_to_data_url(np.zeros_like(img_app3)),
                      width=canvas_width)
         ], className="six columns")],
         className="row")
@@ -81,23 +83,26 @@ def callbacks(app):
                 State('canvas-bg', 'width'),
                 ])
     def update_figure_upload(image, string, h, s, w):
-        mask = parse_jsonstring(string, shape=(round(h/s), round(w/s)))
-        if mask.sum() > 0:
-            if image is None:
-                im = img
-                image = img
+        if string:
+            mask = parse_jsonstring(string, shape=(round(h/s), round(w/s)))
+            if mask.sum() > 0:
+                if image is None:
+                    im = img_app3
+                    image = img_app3
+                else:
+                    im = image_string_to_PILImage(image)
+                    im = np.asarray(im)
+                seg = superpixel_color_segmentation(im, mask)
             else:
-                im = image_string_to_PILImage(image)
-                im = np.asarray(im)
-            seg = superpixel_color_segmentation(im, mask)
+                if image is None:
+                    image = img_app3
+                seg = np.ones((h, w))
+            fill_value = 255 * np.ones(3, dtype=np.uint8)
+            dat = np.copy(im)
+            dat[np.logical_not(seg)] = fill_value
+            return array_to_data_url(dat)
         else:
-            if image is None:
-                image = img
-            seg = np.ones((h, w))
-        fill_value = 255 * np.ones(3, dtype=np.uint8)
-        dat = np.copy(im)
-        dat[np.logical_not(seg)] = fill_value
-        return array_to_data_url(dat)
+            raise PreventUpdate
 
 
 
@@ -132,7 +137,7 @@ def callbacks(app):
                 [Input('upload-image-bg', 'contents')])
     def update_canvas_upload_scale(image_string):
         if image_string is None:
-            raise ValueError
+            raise PreventUpdate
         if image_string is not None:
             # very dirty hack, this should be made more robust using regexp
             im = image_string_to_PILImage(image_string)

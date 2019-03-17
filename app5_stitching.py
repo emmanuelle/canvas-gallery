@@ -171,31 +171,26 @@ def callbacks(app):
                 State('ncolumns-stitch', 'value')])
     def upload_content(list_image_string, list_filenames, click,
                        n_rows, n_cols):
-        #if list_image_string is None:
-        #    raise PreventUpdate
         if list_image_string is not None:
-            print('update canvas upload')
             order = np.argsort(list_filenames)
             image_list = [np.asarray(image_string_to_PILImage(
                                 list_image_string[i])) for i in order]
             res = tile_images(image_list, n_rows, n_cols)
             return array_to_data_url(res)
         elif click:
+            import os
             filelist = glob('./assets/tile*.jpg')
             filelist.sort()
-            print(filelist)
             image_list = [io.imread(filename) for filename in filelist]
             res = tile_images(image_list, n_rows, n_cols)
             return array_to_data_url(res)
         else:
             raise PreventUpdate
-            #return None
 
 
     @app.callback(Output('stitching-tabs', 'value'),
                 [Input('button-stitch', 'n_clicks')])
     def change_focus(click):
-        print('changing focus')
         if click:
             return 'result-tab'
         return 'canvas-tab'
@@ -223,7 +218,6 @@ def callbacks(app):
     @app.callback(Output('canvas-stitch', 'image_content'),
                 [Input('sh_x', 'children')])
     def update_canvas_image(im):
-        print('update image content')
         return im
 
 
