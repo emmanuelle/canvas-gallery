@@ -21,9 +21,10 @@ from dash_canvas.components import image_upload_zone
 
 # Image to segment and shape parameters
 filename = './assets/dress.jpg'
-filename_app = '../assets/dress.jpg'
+filename_app = '/assets/dress.jpg'
 img_app3 = io.imread(filename)
 height, width, _ = img_app3.shape
+print('app3', height, width)
 canvas_width = 500
 canvas_height = round(height * canvas_width / width)
 scale = canvas_width / width
