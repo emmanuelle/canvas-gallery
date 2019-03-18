@@ -74,7 +74,7 @@ layout = html.Div([
                      value='segmentation-help-tab',
                      children=[
                         html.Img(id='segmentation-help',
-                                 src='../assets/segmentation.gif',
+                                 src='assets/segmentation.gif',
                                  width='100%'),
                      ]
                 )
