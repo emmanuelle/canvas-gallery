@@ -63,18 +63,29 @@ layout = html.Div([
                 value=[5]
             ),
             image_upload_zone('upload-image-bg'),
-        ], className="six columns"),
+        ], className="seven columns"),
         html.Div([
-            html.H3(children='Image without background'),
+            html.H3(children='How to use this app and remove background',
+                    id='bg-title'),
             html.Img(id='segmentation-bg',
-                     src=array_to_data_url(np.zeros_like(img_app3)),
-                     width=canvas_width)
-        ], className="six columns")],
+                     src='assets/bg.gif',
+                     width='100%')
+        ], className="five columns")],
         className="row")
         ])
 
 # ----------------------- Callbacks -----------------------------
 def callbacks(app):
+
+
+    @app.callback(Output('bg-title', 'children'),
+                 [Input('canvas-bg', 'json_data')])
+    def modify_bg_title(json_data):
+        if json_data:
+            return "Image without background"
+        else:
+            raise PreventUpdate
+
 
     @app.callback(Output('segmentation-bg', 'src'),
                 [Input('canvas-bg', 'image_content'),
