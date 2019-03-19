@@ -44,6 +44,21 @@ def untile_images(image_string, n_rows, n_cols):
     return np.array(tiles)
 
 
+def _sort_props_lines(props, height, width, ncols):
+    props = pd.DataFrame(props)
+    index_init = ncols * ((props['top'] - props['height'] // 2) // height) + \
+                    ((props['left'] - props['width'] // 2) // width)
+    index_end = ncols * ((props['top'] + props['height'] // 2) // height) + \
+                    ((props['left'] + props['width'] // 2) // width)
+    props['index_init'] = index_init
+    props['index_end'] = index_end
+    overlaps = {}
+    for line in props.iterrows():
+        overlaps[(line[1]['index_init'], line[1]['index_end'])] = \
+                (line[1]['height'], line[1]['width'])
+    return overlaps
+
+
 def instructions():
     return html.Div(children=[
     html.H5(children='How to use this stitching app'),
@@ -71,7 +86,7 @@ canvas_width = 800
 canvas_height = round(height * canvas_width / width)
 scale = canvas_width / width
 
-list_columns = ['length', 'width', 'height']
+list_columns = ['length', 'width', 'height', 'left', 'top']
 columns = [{"name": i, "id": i} for i in list_columns]
 
 
@@ -93,6 +108,7 @@ layout = html.Div([
                             lineWidth=2,
                             lineColor='red',
                             tool="line",
+                            hide_buttons=['pencil'],
                             image_content=array_to_data_url(
                                 np.zeros((width, width), dtype=np.uint8)),
                             goButtonTitle='Estimate translation',
@@ -113,7 +129,15 @@ layout = html.Div([
                             width=canvas_width)
 
                         ]
-                    )
+                    ),
+                dcc.Tab(
+                    label='How to use this app',
+                    value='help-tab',
+                    children=[
+                        html.Img(id='bla', src='assets/stitching.gif',
+                                 width=canvas_width),
+                        ]
+                        )
             ]
             )
     ], className="eight columns"),
@@ -122,7 +146,7 @@ layout = html.Div([
         dcc.Input(
             id='nrows-stitch',
             type='number',
-            value=2,
+            value=1,
             name='number of rows',
             ),
         html.Label('Number of columns'),
@@ -181,7 +205,7 @@ def callbacks(app):
             import os
             filelist = glob('./assets/tile*.jpg')
             filelist.sort()
-            image_list = [io.imread(filename) for filename in filelist]
+            image_list = [io.imread(filename) for filename in filelist[:4]]
             res = tile_images(image_list, n_rows, n_cols)
             return array_to_data_url(res)
         else:
@@ -192,6 +216,7 @@ def callbacks(app):
                 [Input('button-stitch', 'n_clicks')])
     def change_focus(click):
         if click:
+            print("focus", click)
             return 'result-tab'
         return 'canvas-tab'
 
@@ -204,14 +229,19 @@ def callbacks(app):
                 State('table-stitch', 'data'),
                 State('sh_x', 'children')])
     def modify_content(n_cl, n_rows, n_cols, overlap, estimate, image_string):
+        if image_string is None:
+            raise PreventUpdate
         tiles = untile_images(image_string, n_rows, n_cols)
         if estimate is not None and len(estimate) > 0:
-            overlap = []
-            for line in estimate:
-                overlap.append(1.1 * line['length'] / tiles.shape[3])
+            overlap_dict = _sort_props_lines(estimate, tiles.shape[2],
+                                             tiles.shape[3], n_cols)
+        else:
+            overlap_dict = None
         canvas = register_tiles(tiles, n_rows, n_cols,
-                                overlaps=overlap,
-                                pad=100)
+                                overlap_global=overlap,
+                                overlap_local=overlap_dict,
+                                pad=np.max(tiles.shape[2:])//2,
+                                blending=True)
         return array_to_data_url(canvas)
 
 
