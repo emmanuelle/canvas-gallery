@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output, State
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
+from dash.exceptions import PreventUpdate
 
 import dash_canvas
 from dash_canvas.utils.io_utils import (image_string_to_PILImage,
@@ -46,9 +47,12 @@ layout = html.Div([
             ),
     ], className="seven columns"),
     html.Div([
-        html.H2('Draw lines and measure object lengths'),
+        html.H3('Draw lines and measure lengths'),
+        html.H3(children='How to use this app', id='measure-subtitle'),
+        html.Img(id='measure-help',
+                 src='../assets/measure.gif',
+                 width='100%'),
         html.H4(children="Objects properties"),
-        html.Div(id='sh_x', hidden=True),
         dash_table.DataTable(
             id='table-line',
             columns=columns,
@@ -64,6 +68,23 @@ def callbacks(app):
                   [Input('canvas-line', 'image_content')])
     def modify_tool(string):
         return "line"
+
+    @app.callback(Output('measure-subtitle', 'children'),
+                  [Input('canvas-line', 'json_data')])
+    def reduce_help(json_data):
+        if json_data:
+            return ''
+        else:
+            raise PreventUpdate
+
+
+    @app.callback(Output('measure-help', 'width'),
+                  [Input('canvas-line', 'json_data')])
+    def reduce_help(json_data):
+        if json_data:
+            return '0%'
+        else:
+            raise PreventUpdate
 
     @app.callback(Output('table-line', 'data'),
                   [Input('canvas-line', 'json_data')])
