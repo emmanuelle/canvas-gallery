@@ -42,8 +42,7 @@ layout = html.Div([
         html.Div([
             html.H2(children='Remove image background'),
             dcc.Markdown('''
-             Draw on the object of interest, and press Save to remove
-             background.'''),
+             Draw on the object of interest, and press remove background.'''),
             dash_canvas.DashCanvas(
                 id='canvas-bg',
                 width=canvas_width,

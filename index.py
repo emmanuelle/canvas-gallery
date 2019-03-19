@@ -113,7 +113,17 @@ def display_app(pathname):
                 "/", "").replace("-", "_")
     if app_name in apps:
         return html.Div(id="waitfor",
-                        children=apps[app_name].layout,
+                        children=[html.Div(children=[
+                                        html.A(children='Dash canvas gallery',
+                                                 href='/canvas-gallery',
+                                                 style=
+                                                    {'color':'black',
+                                                     'text-decoration':'none',
+                                                     }),
+                                    ], 
+                                    style={'background-color':'#c4e9e5',
+                                               }),
+                                  apps[app_name].layout],
                         )
     else:
         return """

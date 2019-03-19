@@ -90,7 +90,7 @@ layout = html.Div([
         lineWidth=2,
         lineColor='red',
         image_content=array_to_data_url(overlay),
-        goButtonTitle='Update segmentation',
+        goButtonTitle='Update',
     ),
      ], className="six columns"),
        ])
