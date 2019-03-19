@@ -50,7 +50,7 @@ layout = html.Div([
         html.H3('Draw lines and measure lengths'),
         html.H3(children='How to use this app', id='measure-subtitle'),
         html.Img(id='measure-help',
-                 src='../assets/measure.gif',
+                 src='assets/measure.gif',
                  width='100%'),
         html.H4(children="Objects properties"),
         dash_table.DataTable(
