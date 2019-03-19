@@ -60,6 +60,10 @@ layout = html.Div([
 
 def callbacks(app):
 
+    @app.callback(Output('canvas-line', 'tool'),
+                  [Input('canvas-line', 'image_content')])
+    def modify_tool(string):
+        return "line"
 
     @app.callback(Output('table-line', 'data'),
                   [Input('canvas-line', 'json_data')])
