@@ -1,6 +1,7 @@
 import numpy as np
 import json
-from skimage import io, color, segmentation, img_as_ubyte, filters, measure
+from skimage import io, color, segmentation, img_as_ubyte, filters, measure, \
+                    data
 from PIL import Image
 
 
@@ -19,11 +20,14 @@ from dash_canvas.utils.image_processing_utils import modify_segmentation
 
 # Image to segment and shape parameters
 filename = 'https://upload.wikimedia.org/wikipedia/commons/1/1b/HumanChromosomesChromomycinA3.jpg'
-img = io.imread(filename, as_gray=True)
-mask = img > 1.2 * filters.threshold_otsu(img)
+try:
+    img = io.imread(filename, as_gray=True)
+    mask = img > 1.2 * filters.threshold_otsu(img)
+except:
+    img = data.coins()
+    mask = img > filters.threshold_otsu(img)
+
 labels = measure.label(mask)
-
-
 overlay = segmentation.mark_boundaries(img, labels)
 overlay = img_as_ubyte(overlay)
 

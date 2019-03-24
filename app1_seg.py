@@ -1,6 +1,6 @@
 import numpy as np
 import json
-from skimage import io
+from skimage import io, data
 from PIL import Image
 
 
@@ -21,7 +21,10 @@ from dash_canvas.components import image_upload_zone
 
 # Image to segment and shape parameters
 filename = 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Mitochondria%2C_mammalian_lung_-_TEM_%282%29.jpg'
-img = io.imread(filename, as_gray=True)
+try:
+    img = io.imread(filename, as_gray=True)
+except:
+    img = data.coins()
 height, width = img.shape
 canvas_width = 500
 canvas_height = round(height * canvas_width / width)

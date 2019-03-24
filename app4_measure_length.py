@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from skimage import io
+from skimage import io, data
 
 import dash
 from dash.dependencies import Input, Output, State
@@ -18,11 +18,15 @@ from dash_canvas.utils.parse_json import parse_jsonstring_line
 def title():
     return "Measure lengths"
 
+
 def description():
     return "Draw lines on objects to measure their lengths."
 
 filename = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/X-ray_of_normal_elbow_by_lateral_projection.jpg/756px-X-ray_of_normal_elbow_by_lateral_projection.jpg'
-img = io.imread(filename)
+try:
+    img = io.imread(filename)
+except:
+    img = data.coins() 
 height, width = img.shape
 canvas_width = 500
 canvas_height = round(height * canvas_width / width)
