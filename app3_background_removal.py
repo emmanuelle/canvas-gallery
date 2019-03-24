@@ -87,27 +87,24 @@ def callbacks(app):
 
 
     @app.callback(Output('segmentation-bg', 'src'),
-                [Input('canvas-bg', 'image_content'),
-                Input('canvas-bg', 'json_data'),
-                Input('canvas-bg', 'height')],
-                [State('canvas-bg', 'scale'),
-                State('canvas-bg', 'width'),
-                ])
-    def update_figure_upload(image, string, h, s, w):
+                  [Input('canvas-bg', 'json_data')],
+                  [State('canvas-bg', 'image_content')])
+    def update_figure_upload(string, image):
         if string:
-            mask = parse_jsonstring(string, shape=(round(h/s), round(w/s)))
+            if image is None:
+                im = img_app3
+            else:
+                im = image_string_to_PILImage(image)
+                im = np.asarray(im)
+            shape = im.shape[:2]
+            try:
+                mask = parse_jsonstring(string, shape=shape)
+            except IndexError:
+                raise PreventUpdate
             if mask.sum() > 0:
-                if image is None:
-                    im = img_app3
-                    image = img_app3
-                else:
-                    im = image_string_to_PILImage(image)
-                    im = np.asarray(im)
                 seg = superpixel_color_segmentation(im, mask)
             else:
-                if image is None:
-                    image = img_app3
-                seg = np.ones((h, w))
+                seg = np.ones(shape)
             fill_value = 255 * np.ones(3, dtype=np.uint8)
             dat = np.copy(im)
             dat[np.logical_not(seg)] = fill_value
@@ -115,6 +112,11 @@ def callbacks(app):
         else:
             raise PreventUpdate
 
+
+    @app.callback(Output('canvas-bg', 'json_data'),
+                [Input('canvas-bg', 'image_content')])
+    def clear_data(image_string):
+        return ''
 
 
     @app.callback(Output('canvas-bg', 'image_content'),
@@ -126,36 +128,6 @@ def callbacks(app):
             return image_string
         else:
             return None
-
-
-    @app.callback(Output('canvas-bg', 'height'),
-                [Input('upload-image-bg', 'contents')],
-                [State('canvas-bg', 'width'),
-                State('canvas-bg', 'height')])
-    def update_canvas_upload_shape(image_string, w, h):
-        if image_string is None:
-            raise ValueError
-        if image_string is not None:
-            # very dirty hack, this should be made more robust using regexp
-            im = image_string_to_PILImage(image_string)
-            im_h, im_w = im.height, im.width
-            return round(w / im_w * im_h)
-        else:
-            return canvas_height
-
-
-    @app.callback(Output('canvas-bg', 'scale'),
-                [Input('upload-image-bg', 'contents')])
-    def update_canvas_upload_scale(image_string):
-        if image_string is None:
-            raise PreventUpdate
-        if image_string is not None:
-            # very dirty hack, this should be made more robust using regexp
-            im = image_string_to_PILImage(image_string)
-            im_h, im_w = im.height, im.width
-            return canvas_width / im_w
-        else:
-            return scale
 
 
     @app.callback(Output('canvas-bg', 'lineWidth'),
