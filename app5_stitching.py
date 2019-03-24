@@ -110,7 +110,7 @@ layout = html.Div([
                             tool="line",
                             hide_buttons=['pencil'],
                             image_content=array_to_data_url(
-                                np.zeros((width, width), dtype=np.uint8)),
+                                np.zeros((height, width), dtype=np.uint8)),
                             goButtonTitle='Estimate translation',
                         ),
                         html.Button('Upload demo data', id='demo'),
@@ -183,8 +183,11 @@ def callbacks(app):
                 [Input('canvas-stitch', 'json_data')])
     def estimate_translation(string):
         props = parse_jsonstring_line(string)
-        df = pd.DataFrame(props, columns=list_columns)
-        return df.to_dict("records")
+        if len(props) > 0:
+            df = pd.DataFrame(props, columns=list_columns)
+            return df.to_dict("records")
+        else:
+            raise PreventUpdate
 
 
     @app.callback(Output('sh_x', 'children'),
@@ -250,32 +253,4 @@ def callbacks(app):
     def update_canvas_image(im):
         return im
 
-
-    @app.callback(Output('canvas-stitch', 'height'),
-                [Input('sh_x', 'children')],
-                [State('canvas-stitch', 'width'),
-                State('canvas-stitch', 'height')])
-    def update_canvas_upload_shape(image_string, w, h):
-        if image_string is None:
-            raise PreventUpdate
-        if image_string is not None:
-            im = image_string_to_PILImage(image_string)
-            im_h, im_w = im.height, im.width
-            return round(w / im_w * im_h)
-        else:
-            return canvas_height
-
-
-    @app.callback(Output('canvas-stitch', 'scale'),
-                [Input('sh_x', 'children')])
-    def update_canvas_upload_scale(image_string):
-        if image_string is None:
-            raise PreventUpdate
-        if image_string is not None:
-            # very dirty hack, this should be made more robust using regexp
-            im = image_string_to_PILImage(image_string)
-            im_h, im_w = im.height, im.width
-            return canvas_width / im_w
-        else:
-            return scale
 
