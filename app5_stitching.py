@@ -155,34 +155,33 @@ def callbacks(app):
                 [Input('stitching-tabs', 'value')])
     def fill_tab(tab):
         if tab=='canvas-tab':
-            return   [dash_canvas.DashCanvas(
-                            id='canvas-stitch',
-                            width=canvas_width,
-                            height=canvas_height,
-                            scale=scale,
-                            lineWidth=2,
-                            lineColor='red',
-                            tool="line",
-                            hide_buttons=['pencil'],
-                            image_content=array_to_data_url(
-                                np.zeros((height, width), dtype=np.uint8)),
-                            goButtonTitle='Estimate translation',
+            return [dash_canvas.DashCanvas(
+                        id='canvas-stitch',
+                        width=canvas_width,
+                        height=canvas_height,
+                        scale=scale,
+                        lineWidth=2,
+                        lineColor='red',
+                        tool="line",
+                        hide_buttons=['pencil'],
+                        image_content=array_to_data_url(
+                            np.zeros((height, width), dtype=np.uint8)),
+                        goButtonTitle='Estimate translation',
                         ),
-                        html.Button('Upload demo data', id='demo'),
-                        image_upload_zone('upload-stitch', multiple=True,
+                    html.Button('Upload demo data', id='demo'),
+                    image_upload_zone('upload-stitch', multiple=True,
                             width=45),
-                        ]
+                    ]
         elif tab=='result-tab':
             return [html.Img(id='stitching-result',
-                            src=array_to_data_url(
-                            np.zeros((height, width), dtype=np.uint8)),
-                            width=canvas_width)
-                          ]
+                             src=array_to_data_url(
+                             np.zeros((height, width), dtype=np.uint8)),
+                             width=canvas_width)
+                   ]
         else: 
-            return [
-                          html.Img(id='bla', src='assets/stitching.gif',
-                                   width=canvas_width),
-                          ]
+            return [html.Img(id='bla', src='assets/stitching.gif',
+                             width=canvas_width),
+                   ]
 
 
 
