@@ -99,47 +99,19 @@ layout = html.Div([
                 dcc.Tab(
                     label='Image tiles',
                     value='canvas-tab',
-                    children=[
-                        dash_canvas.DashCanvas(
-                            id='canvas-stitch',
-                            width=canvas_width,
-                            height=canvas_height,
-                            scale=scale,
-                            lineWidth=2,
-                            lineColor='red',
-                            tool="line",
-                            hide_buttons=['pencil'],
-                            image_content=array_to_data_url(
-                                np.zeros((height, width), dtype=np.uint8)),
-                            goButtonTitle='Estimate translation',
-                        ),
-                        html.Button('Upload demo data', id='demo'),
-                        image_upload_zone('upload-stitch', multiple=True,
-                            width=45),
-                        html.Div(id='sh_x', hidden=True),
-                    ]
                 ),
                 dcc.Tab(
                     label='Stitched Image',
                     value='result-tab',
-                    children=[
-                        html.Img(id='stitching-result',
-                            src=array_to_data_url(
-                                np.zeros((height, width), dtype=np.uint8)),
-                            width=canvas_width)
-
-                        ]
                     ),
                 dcc.Tab(
                     label='How to use this app',
                     value='help-tab',
-                    children=[
-                        html.Img(id='bla', src='assets/stitching.gif',
-                                 width=canvas_width),
-                        ]
                         )
             ]
-            )
+            ),
+        html.Div(id='tabs-content-example'),
+        html.Div(id='sh_x', hidden=True)
     ], className="eight columns"),
     html.Div([
         html.Label('Number of rows'),
@@ -178,6 +150,41 @@ layout = html.Div([
 
 
 def callbacks(app):
+
+    @app.callback(Output('tabs-content-example', 'children'),
+                [Input('stitching-tabs', 'value')])
+    def fill_tab(tab):
+        if tab=='canvas-tab':
+            return   [dash_canvas.DashCanvas(
+                            id='canvas-stitch',
+                            width=canvas_width,
+                            height=canvas_height,
+                            scale=scale,
+                            lineWidth=2,
+                            lineColor='red',
+                            tool="line",
+                            hide_buttons=['pencil'],
+                            image_content=array_to_data_url(
+                                np.zeros((height, width), dtype=np.uint8)),
+                            goButtonTitle='Estimate translation',
+                        ),
+                        html.Button('Upload demo data', id='demo'),
+                        image_upload_zone('upload-stitch', multiple=True,
+                            width=45),
+                        ]
+        elif tab=='result-tab':
+            return [html.Img(id='stitching-result',
+                            src=array_to_data_url(
+                            np.zeros((height, width), dtype=np.uint8)),
+                            width=canvas_width)
+                          ]
+        else: 
+            return [
+                          html.Img(id='bla', src='assets/stitching.gif',
+                                   width=canvas_width),
+                          ]
+
+
 
     @app.callback(Output('table-stitch', 'data'),
                 [Input('canvas-stitch', 'json_data')])
@@ -219,7 +226,6 @@ def callbacks(app):
                 [Input('button-stitch', 'n_clicks')])
     def change_focus(click):
         if click:
-            print("focus", click)
             return 'result-tab'
         return 'canvas-tab'
 
