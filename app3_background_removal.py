@@ -3,7 +3,6 @@ import json
 from skimage import io
 from PIL import Image
 
-import dash_canvas
 import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
@@ -11,12 +10,11 @@ import dash_html_components as html
 import dash_core_components as dcc
 import plotly.graph_objs as go
 
-from dash_canvas.utils.parse_json import parse_jsonstring
-from dash_canvas.utils.image_processing_utils import \
-                                        superpixel_color_segmentation
-from dash_canvas.utils.plot_utils import image_with_contour
-from dash_canvas.utils.io_utils import image_string_to_PILImage, \
-                                       array_to_data_url
+import dash_canvas
+from dash_canvas.utils import (parse_jsonstring,
+                              superpixel_color_segmentation,
+                              image_with_contour, image_string_to_PILImage,
+                              array_to_data_url)
 from dash_canvas.components import image_upload_zone
 
 # Image to segment and shape parameters
@@ -24,7 +22,6 @@ filename = './assets/dress.jpg'
 filename_app = '/assets/dress.jpg'
 img_app3 = io.imread(filename)
 height, width, _ = img_app3.shape
-print('app3', height, width)
 canvas_width = 500
 canvas_height = round(height * canvas_width / width)
 scale = canvas_width / width

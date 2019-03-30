@@ -12,11 +12,8 @@ import dash_core_components as dcc
 import plotly.graph_objs as go
 from dash.exceptions import PreventUpdate
 
-from dash_canvas.utils.parse_json import parse_jsonstring
-from dash_canvas.utils.image_processing_utils import segmentation_generic
-from dash_canvas.utils.plot_utils import image_with_contour
-from dash_canvas.utils.io_utils import image_string_to_PILImage
-
+from dash_canvas.utils import  (parse_jsonstring, segmentation_generic,
+                               image_with_contour, image_string_to_PILImage)
 from dash_canvas.components import image_upload_zone
 
 # Image to segment and shape parameters

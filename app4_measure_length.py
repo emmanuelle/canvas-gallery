@@ -10,9 +10,8 @@ import dash_table
 from dash.exceptions import PreventUpdate
 
 import dash_canvas
-from dash_canvas.utils.io_utils import (image_string_to_PILImage,
-                                        array_to_data_url)
-from dash_canvas.utils.parse_json import parse_jsonstring_line
+from dash_canvas.utils import (image_string_to_PILImage, array_to_data_url,
+                               parse_jsonstring_line)
 
 
 def title():

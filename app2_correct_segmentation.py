@@ -13,9 +13,8 @@ import dash_html_components as html
 import dash_core_components as dcc
 import plotly.graph_objs as go
 
-from dash_canvas.utils.parse_json import parse_jsonstring
-from dash_canvas.utils.io_utils import image_string_to_PILImage, array_to_data_url
-from dash_canvas.utils.image_processing_utils import modify_segmentation
+from dash_canvas.utils import (parse_jsonstring, image_string_to_PILImage,
+                               array_to_data_url, modify_segmentation)
 
 
 # Image to segment and shape parameters
